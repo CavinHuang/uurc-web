@@ -28,6 +28,48 @@ describe("toRemoteMousePosition", () => {
     expect(result.absY).toBe(250);
   });
 
+  it("maps clicks through a cropped video in fill mode", () => {
+    const stage = document.createElement("div");
+    stage.className = "remote-stage remote-stage-fill";
+    stage.getBoundingClientRect = () => new DOMRect(0, 0, 1000, 500);
+    const video = document.createElement("video");
+    video.setAttribute("data-active", "true");
+    defineVideoSize(video, 1000, 1000);
+    stage.append(video);
+
+    expect(toRemoteMousePosition({
+      clientX: 500,
+      clientY: 0,
+      currentTarget: stage as HTMLDivElement,
+    })).toMatchObject({ absX: 500, absY: 250 });
+
+    expect(toRemoteMousePosition({
+      clientX: 500,
+      clientY: 500,
+      currentTarget: stage as HTMLDivElement,
+    })).toMatchObject({ absX: 500, absY: 750 });
+  });
+
+  it("preserves letterboxed coordinate mapping in fit mode", () => {
+    const stage = document.createElement("div");
+    stage.className = "remote-stage remote-stage-fit";
+    stage.getBoundingClientRect = () => new DOMRect(0, 0, 1000, 500);
+    const video = document.createElement("video");
+    defineVideoSize(video, 1000, 1000);
+    stage.append(video);
+
+    expect(toRemoteMousePosition({
+      clientX: 500,
+      clientY: 0,
+      currentTarget: stage as HTMLDivElement,
+    })).toMatchObject({ absX: 500, absY: 0 });
+    expect(toRemoteMousePosition({
+      clientX: 500,
+      clientY: 500,
+      currentTarget: stage as HTMLDivElement,
+    })).toMatchObject({ absX: 500, absY: 1000 });
+  });
+
   it("falls back to the first video when none is marked active", () => {
     const stage = document.createElement("div");
     stage.getBoundingClientRect = () => new DOMRect(0, 0, 800, 600);
