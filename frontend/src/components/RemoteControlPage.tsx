@@ -6,6 +6,7 @@ import { RemoteControlDiagnosticsDrawer } from "./RemoteControlDiagnosticsDrawer
 import { RemoteControlInsights } from "./RemoteControlInsights.js";
 import { RemoteControlSettingsDrawer } from "./RemoteControlSettingsDrawer.js";
 import { RemoteControlStage } from "./RemoteControlStage.js";
+import { MacRemoteInputDiagnostics } from "./MacRemoteInputDiagnostics.js";
 import { RemoteControlTopbar } from "./RemoteControlTopbar.js";
 import { RemoteControlWarnings } from "./RemoteControlWarnings.js";
 
@@ -54,6 +55,7 @@ export function RemoteControlPage(props: RemoteControlPageProps) {
           <RemoteControlStage {...props} />
         </div>
         <RemoteControlWarnings {...props} />
+        <MacRemoteInputDiagnostics {...props} />
         <RemoteControlInsights {...props} />
         <div className="control-drawer-row">
           <RemoteControlSettingsDrawer {...props} />
