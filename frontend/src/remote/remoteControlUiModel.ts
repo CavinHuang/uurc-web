@@ -348,7 +348,11 @@ export function toRemoteMousePosition(event: RemotePointerLike): { absX: number;
     event.currentTarget.querySelector("video");
   const videoWidth = video?.videoWidth || Math.round(stageRect.width);
   const videoHeight = video?.videoHeight || Math.round(stageRect.height);
-  const rendered = getContainedMediaRect(stageRect, videoWidth, videoHeight);
+  // The fill mode uses object-fit: cover; map pointer coordinates through the
+  // cropped image bounds, otherwise clicks land at the wrong remote position.
+  const rendered = event.currentTarget.classList.contains("remote-stage-fill")
+    ? getCoveredMediaRect(stageRect, videoWidth, videoHeight)
+    : getContainedMediaRect(stageRect, videoWidth, videoHeight);
   const relX = clamp((event.clientX - rendered.left) / rendered.width, 0, 1);
   const relY = clamp((event.clientY - rendered.top) / rendered.height, 0, 1);
   return {
@@ -377,6 +381,18 @@ function getContainedMediaRect(container: DOMRect, mediaWidth: number, mediaHeig
 
   const height = container.width / mediaRatio;
   return new DOMRect(container.left, container.top + (container.height - height) / 2, container.width, height);
+}
+
+function getCoveredMediaRect(container: DOMRect, mediaWidth: number, mediaHeight: number): DOMRect {
+  const scale = Math.max(container.width / mediaWidth, container.height / mediaHeight);
+  const width = mediaWidth * scale;
+  const height = mediaHeight * scale;
+  return new DOMRect(
+    container.left + (container.width - width) / 2,
+    container.top + (container.height - height) / 2,
+    width,
+    height,
+  );
 }
 
 function clamp(value: number, min: number, max: number): number {
